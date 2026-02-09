@@ -972,6 +972,12 @@ else
   build_options_config.set('NO_PTHREADS', '1')
 endif
 
+numa = dependency('numa', required: get_option('numa'))
+if numa.found()
+  libgit_dependencies += numa
+  libgit_c_args += '-DHAVE_NUMA_H'
+endif
+
 msgfmt = find_program('msgfmt', dirs: program_path, native: true, required: false)
 gettext_option = get_option('gettext').disable_auto_if(not msgfmt.found())
 if not msgfmt.found() and gettext_option.enabled()
@@ -2271,6 +2277,7 @@ summary({
   'perl': perl_features_enabled,
   'python': target_python.found(),
   'rust': rust_option.allowed(),
+  'numa': numa,
 }, section: 'Auto-detected features', bool_yn: true)
 
 summary({

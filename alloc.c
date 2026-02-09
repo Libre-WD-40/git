@@ -16,6 +16,9 @@
 #include "repository.h"
 #include "tag.h"
 #include "alloc.h"
+#ifdef HAVE_NUMA_H
+#include <numa.h>
+#endif
 
 #define BLOCKING 1024
 
@@ -25,15 +28,6 @@ union any_object {
 	struct tree tree;
 	struct commit commit;
 	struct tag tag;
-};
-
-struct alloc_state {
-	int nr;    /* number of nodes left in current allocation */
-	void *p;   /* first free node in current allocation */
-
-	/* bookkeeping of allocations */
-	void **slabs;
-	int slab_nr, slab_alloc;
 };
 
 struct alloc_state *alloc_state_alloc(void)
@@ -50,7 +44,11 @@ void alloc_state_free_and_null(struct alloc_state **s_)
 
 	while (s->slab_nr > 0) {
 		s->slab_nr--;
+#ifdef HAVE_NUMA_H
+		numa_free(s->slabs[s->slab_nr], BLOCKING * s->node_size);
+#else
 		free(s->slabs[s->slab_nr]);
+#endif
 	}
 
 	FREE_AND_NULL(s->slabs);
@@ -63,7 +61,14 @@ static inline void *alloc_node(struct alloc_state *s, size_t node_size)
 
 	if (!s->nr) {
 		s->nr = BLOCKING;
+#ifdef HAVE_NUMA_H
+		s->p = numa_alloc_local(BLOCKING * node_size);
+		if (!s->p)
+			die("numa_alloc_local failed");
+		s->node_size = node_size; /* Store node_size for numa_free */
+#else
 		s->p = xmalloc(BLOCKING * node_size);
+#endif
 
 		ALLOC_GROW(s->slabs, s->slab_nr + 1, s->slab_alloc);
 		s->slabs[s->slab_nr++] = s->p;

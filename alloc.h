@@ -1,7 +1,16 @@
 #ifndef ALLOC_H
 #define ALLOC_H
 
-struct alloc_state;
+struct alloc_state {
+	int nr;    /* number of nodes left in current allocation */
+	void *p;   /* first free node in current allocation */
+
+	/* bookkeeping of allocations */
+	void **slabs;
+	int slab_nr, slab_alloc;
+	size_t node_size; /* size of nodes in current allocation */
+};
+
 struct tree;
 struct commit;
 struct tag;

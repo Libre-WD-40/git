@@ -17,6 +17,9 @@
 #include "shallow.h"
 #include "trace.h"
 #include "trace2.h"
+#ifdef HAVE_NUMA_H
+#include <numa.h>
+#endif
 
 #define RUN_SETUP		(1<<0)
 #define RUN_SETUP_GENTLY	(1<<1)
@@ -915,6 +918,10 @@ static int run_argv(struct strvec *args)
 
 int cmd_main(int argc, const char **argv)
 {
+#ifdef HAVE_NUMA_H
+	if (numa_available() != -1)
+		numa_set_localalloc();
+#endif
 	struct strvec args = STRVEC_INIT;
 	const char *cmd;
 	int done_help = 0;
