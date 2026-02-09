@@ -3,7 +3,7 @@
  * Copyright (c) 2006 Rene Scharfe
  */
 #include "builtin.h"
-#include "archive.h"
+#include "../archive.h"
 #include "gettext.h"
 #include "transport.h"
 #include "parse-options.h"
