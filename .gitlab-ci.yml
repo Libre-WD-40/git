@@ -176,8 +176,9 @@ test:mingw64:
       - .dependencies
   before_script:
     - *windows_before_script
-    - ./ci/install-dependencies.ps1
-    - $env:Path = "C:\Meson;C:\Rust\bin;$env:Path"
+    - choco install -y git meson ninja
+    - Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+    - refreshenv
     - New-Item -Path $env:TEST_OUTPUT_DIRECTORY -ItemType Directory
 
 build:msvc-meson:
@@ -236,17 +237,6 @@ static-analysis:
   script:
     - ./ci/run-static-analysis.sh
     - ./ci/check-directional-formatting.bash
-
-rust-analysis:
-  image: ubuntu:rolling
-  stage: analyze
-  needs: [ ]
-  variables:
-    jobname: RustAnalysis
-  before_script:
-    - ./ci/install-dependencies.sh
-  script:
-    - ./ci/run-rust-checks.sh
 
 check-whitespace:
   image: ubuntu:latest

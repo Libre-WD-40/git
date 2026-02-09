@@ -7,7 +7,6 @@ $ProgressPreference = 'SilentlyContinue'
 
 $GitVersion = '2.54.0.windows.1'
 $MesonVersion = '1.11.0'
-$RustVersion = '1.96.0'
 
 New-Item -Path $DownloadDirectory -ItemType Directory -Force | Out-Null
 New-Item -Path .git/info -ItemType Directory -Force | Out-Null
@@ -49,7 +48,3 @@ Invoke-Installer $gitInstaller @('-y', '-o"C:\Program Files\Git"')
 $mesonMsi = Get-Installer "meson.msi" `
     "https://github.com/mesonbuild/meson/releases/download/$MesonVersion/meson-$MesonVersion-64.msi"
 Invoke-Installer msiexec.exe @('/i', $mesonMsi, 'INSTALLDIR=C:\Meson', '/quiet', '/norestart')
-
-$rustMsi = Get-Installer "rust.msi" `
-    "https://static.rust-lang.org/dist/rust-$RustVersion-x86_64-pc-windows-msvc.msi"
-Invoke-Installer msiexec.exe @('/i', $rustMsi, 'INSTALLDIR=C:\Rust', 'ADDLOCAL=Rustc,Cargo,Std', '/quiet', '/norestart')

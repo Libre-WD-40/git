@@ -3,6 +3,8 @@
 Git - fast, scalable, distributed revision control system
 =========================================================
 
+Git with WD-40 applied.
+
 Git is a fast, scalable, distributed revision control system with an
 unusually rich command set that provides both high-level operations
 and full access to internals.

@@ -421,9 +421,6 @@ include shared.mak
 # Define LINK_FUZZ_PROGRAMS if you want `make all` to also build the fuzz test
 # programs in oss-fuzz/.
 #
-# Define INCLUDE_LIBGIT_RS if you want `make all` and `make test` to build and
-# test the Rust crates in contrib/libgit-sys and contrib/libgit-rs.
-#
 # === Optional library: libintl ===
 #
 # Define NO_GETTEXT if you don't want Git output to be translated.
@@ -491,14 +488,6 @@ include shared.mak
 #
 # Define LIBPCREDIR=/foo/bar if your PCRE header and library files are
 # in /foo/bar/include and /foo/bar/lib directories.
-#
-# == Optional Rust support ==
-#
-# Define NO_RUST if you want to disable features and subsystems written in Rust
-# from being compiled into Git. For now, Rust is still an optional feature of
-# the build process. With Git 3.0 though, Rust will always be enabled.
-#
-# Building Rust code requires Cargo.
 #
 # == SHA-1 and SHA-256 defines ==
 #
@@ -694,13 +683,11 @@ FUZZ_OBJS =
 FUZZ_PROGRAMS =
 GIT_OBJS =
 LIB_OBJS =
-LIBGIT_PUB_OBJS =
 SCALAR_OBJS =
 OBJECTS =
 OTHER_PROGRAMS =
 PROGRAM_OBJS =
 PROGRAMS =
-RUST_SOURCES =
 EXCLUDED_PROGRAMS =
 SCRIPT_PERL =
 SCRIPT_PYTHON =
@@ -939,18 +926,6 @@ TEST_SHELL_PATH = $(SHELL_PATH)
 
 LIB_FILE = libgit.a
 
-ifdef DEBUG
-RUST_TARGET_DIR = target/debug
-else
-RUST_TARGET_DIR = target/release
-endif
-
-ifeq ($(uname_S),Windows)
-RUST_LIB = $(RUST_TARGET_DIR)/gitcore.lib
-else
-RUST_LIB = $(RUST_TARGET_DIR)/libgitcore.a
-endif
-
 GITLIBS = common-main.o $(LIB_FILE)
 EXTLIBS =
 
@@ -973,15 +948,6 @@ BASIC_LDFLAGS =
 # library flags
 ARFLAGS = rcs
 PTHREAD_CFLAGS =
-
-# Rust flags
-CARGO_ARGS =
-ifndef V
-CARGO_ARGS += --quiet
-endif
-ifndef DEBUG
-CARGO_ARGS += --release
-endif
 
 # For the 'sparse' target
 SPARSE_FLAGS ?= -std=gnu99 -D__STDC_NO_VLA__
@@ -1352,9 +1318,7 @@ LIB_OBJS += urlmatch.o
 LIB_OBJS += usage.o
 LIB_OBJS += userdiff.o
 LIB_OBJS += utf8.o
-ifdef NO_RUST
 LIB_OBJS += varint.o
-endif
 LIB_OBJS += version.o
 LIB_OBJS += versioncmp.o
 LIB_OBJS += walker.o
@@ -1557,12 +1521,6 @@ CLAR_TEST_OBJS += $(UNIT_TEST_DIR)/unit-test.o
 
 UNIT_TEST_OBJS += $(UNIT_TEST_DIR)/test-lib.o
 
-RUST_SOURCES += src/csum_file.rs
-RUST_SOURCES += src/hash.rs
-RUST_SOURCES += src/lib.rs
-RUST_SOURCES += src/loose.rs
-RUST_SOURCES += src/varint.rs
-
 GIT-VERSION-FILE: FORCE
 	@OLD=$$(cat $@ 2>/dev/null || :) && \
 	$(call version_gen,"$(shell pwd)",GIT-VERSION-FILE.in,$@) && \
@@ -1591,14 +1549,6 @@ endif
 
 ALL_CFLAGS = $(DEVELOPER_CFLAGS) $(CPPFLAGS) $(CFLAGS) $(CFLAGS_APPEND)
 ALL_LDFLAGS = $(LDFLAGS) $(LDFLAGS_APPEND)
-
-ifndef NO_RUST
-BASIC_CFLAGS += -DWITH_RUST
-GITLIBS += $(RUST_LIB)
-ifeq ($(uname_S),Windows)
-EXTLIBS += -luserenv
-endif
-endif
 
 ifdef SANITIZE
 SANITIZERS := $(foreach flag,$(subst $(comma),$(space),$(SANITIZE)),$(flag))
@@ -2392,12 +2342,6 @@ ifdef CHECK_ASSERTION_SIDE_EFFECTS
 	BASIC_CFLAGS += -DCHECK_ASSERTION_SIDE_EFFECTS
 endif
 
-ifdef INCLUDE_LIBGIT_RS
-	# Enable symbol hiding in contrib/libgit-sys/libgitpub.a without making
-	# us rebuild the whole tree every time we run a Rust build.
-	BASIC_CFLAGS += -fvisibility=hidden
-endif
-
 ifeq ($(TCLTK_PATH),)
 NO_TCLTK = NoThanks
 endif
@@ -2872,10 +2816,6 @@ OBJECTS += $(UNIT_TEST_OBJS)
 OBJECTS += $(CLAR_TEST_OBJS)
 OBJECTS += $(patsubst %,$(UNIT_TEST_DIR)/%.o,$(UNIT_TEST_PROGRAMS))
 
-ifdef INCLUDE_LIBGIT_RS
-	OBJECTS += contrib/libgit-sys/public_symbol_export.o
-endif
-
 ifndef NO_CURL
 	OBJECTS += http.o http-walker.o remote-curl.o
 endif
@@ -3016,12 +2956,6 @@ scalar$X: scalar.o GIT-LDFLAGS $(GITLIBS)
 
 $(LIB_FILE): $(LIB_OBJS)
 	$(QUIET_AR)$(RM) $@ && $(AR) $(ARFLAGS) $@ $^
-
-$(RUST_LIB): Cargo.toml $(RUST_SOURCES) $(LIB_FILE)
-	$(QUIET_CARGO)cargo build $(CARGO_ARGS)
-
-.PHONY: rust
-rust: $(RUST_LIB)
 
 export DEFAULT_EDITOR DEFAULT_PAGER
 
@@ -3881,10 +3815,6 @@ clean: profile-clean coverage-clean cocciclean
 	$(RM) $(htmldocs).tar.gz $(manpages).tar.gz
 	$(MAKE) -C Documentation/ clean
 	$(RM) Documentation/GIT-EXCLUDED-PROGRAMS
-	$(RM) -r contrib/libgit-sys/target contrib/libgit-rs/target
-	$(RM) contrib/libgit-sys/partial_symbol_export.o
-	$(RM) contrib/libgit-sys/hidden_symbol_export.o
-	$(RM) contrib/libgit-sys/libgitpub.a
 ifndef NO_PERL
 	$(RM) -r perl/build/
 endif
@@ -4046,31 +3976,6 @@ $(CLAR_TEST_PROG): $(UNIT_TEST_DIR)/clar.suite $(CLAR_TEST_OBJS) $(GITLIBS) GIT-
 build-unit-tests: $(UNIT_TEST_PROGS) $(CLAR_TEST_PROG)
 unit-tests: $(UNIT_TEST_PROGS) $(CLAR_TEST_PROG) t/helper/test-tool$X
 	$(MAKE) -C t/ unit-tests
-
-.PHONY: libgit-sys libgit-rs
-libgit-sys:
-	$(QUIET)cargo build --manifest-path contrib/libgit-sys/Cargo.toml
-libgit-rs: libgit-sys
-	$(QUIET)cargo build --manifest-path contrib/libgit-rs/Cargo.toml
-ifdef INCLUDE_LIBGIT_RS
-all:: libgit-rs
-endif
-
-LIBGIT_PUB_OBJS += contrib/libgit-sys/public_symbol_export.o
-LIBGIT_PUB_OBJS += libgit.a
-
-LIBGIT_PARTIAL_EXPORT = contrib/libgit-sys/partial_symbol_export.o
-
-LIBGIT_HIDDEN_EXPORT = contrib/libgit-sys/hidden_symbol_export.o
-
-$(LIBGIT_PARTIAL_EXPORT): $(LIBGIT_PUB_OBJS)
-	$(LD) -r $^ -o $@
-
-$(LIBGIT_HIDDEN_EXPORT): $(LIBGIT_PARTIAL_EXPORT)
-	$(OBJCOPY) --localize-hidden $^ $@
-
-contrib/libgit-sys/libgitpub.a: $(LIBGIT_HIDDEN_EXPORT)
-	$(AR) $(ARFLAGS) $@ $^
 
 contrib/credential/osxkeychain/git-credential-osxkeychain: contrib/credential/osxkeychain/git-credential-osxkeychain.o $(LIB_FILE) GIT-LDFLAGS
 	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) \

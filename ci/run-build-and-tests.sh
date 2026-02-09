@@ -1,3 +1,4 @@
+
 #!/bin/sh
 #
 # Build and test Git
@@ -9,7 +10,6 @@ export TEST_CONTRIB_TOO=yes
 
 case "$jobname" in
 linux-musl-meson)
-	MESONFLAGS="$MESONFLAGS -Drust=disabled"
 	export GIT_TEST_USE_SET_E=yes
 	;;
 almalinux-*|debian-*|fedora-*|linux-*)
@@ -38,7 +38,6 @@ linux-TEST-vars)
 	export GIT_TEST_PACK_USE_BITMAP_BOUNDARY_TRAVERSAL=1
 	;;
 linux-clang)
-	export NO_RUST=UnfortunatelyYes
 	export GIT_TEST_DEFAULT_HASH=sha1
 	;;
 linux-sha256)
