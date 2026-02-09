@@ -106,8 +106,6 @@ by the build system:
 
   - C: the primary compiled language used by Git, must be supported. Relevant
     toolchains are GCC, Clang and MSVC.
-  - Rust: candidate as a second compiled lanugage, should be supported. Relevant
-    toolchains is the LLVM-based rustc.
 
 Built-in support for the respective languages is preferred over support that
 needs to be wired up manually to avoid unnecessary complexity. Native support
@@ -151,7 +149,6 @@ The following list of build systems are considered:
 - Cross-platform builds: supported in theory, not wired up in practice.
 - Language support:
   - C: Limited built-in support, many parts need to be wired up manually.
-  - Rust: No built-in support, needs to be wired up manually.
 - Test integration: partially supported, many parts need to be wired up
   manually.
 
@@ -168,7 +165,6 @@ The following list of build systems are considered:
 - Cross-platform builds: supported.
 - Language support:
   - C: Limited built-in support, many parts need to be wired up manually.
-  - Rust: No built-in support, needs to be wired up manually.
 - Test integration: partially supported, many parts need to be wired up
   manually.
 
@@ -194,7 +190,6 @@ The following list of build systems are considered:
 - Cross-platform builds: supported.
 - Language support:
   - C: Supported for GCC, Clang, MSVC and other toolchains.
-  - Rust: No built-in support, needs to be wired up manually.
 - Test integration: supported, even though test dependencies are a bit
   cumbersome to use via "test fixtures". Interactive test runs are not
   supported.
@@ -222,6 +217,5 @@ The following list of build systems are considered:
 - Cross-platform builds: supported.
 - Language support:
   - C: Supported for GCC, Clang, MSVC and other toolchains.
-  - Rust: Supported for rustc.
 - Test integration: supported. Interactive tests are supported starting with
   Meson 1.5.0 via the `--interactive` flag.

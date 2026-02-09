@@ -192,6 +192,3 @@ libgit-sys-test:
 	$(QUIET)cargo test --manifest-path ../contrib/libgit-sys/Cargo.toml
 libgit-rs-test: libgit-sys-test
 	$(QUIET)cargo test --manifest-path ../contrib/libgit-rs/Cargo.toml
-ifdef INCLUDE_LIBGIT_RS
-all:: libgit-rs-test
-endif

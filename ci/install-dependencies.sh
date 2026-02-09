@@ -148,17 +148,6 @@ StaticAnalysis)
 	sudo apt-get -q -y install coccinelle libcurl4-openssl-dev libssl-dev \
 		libexpat-dev gettext make
 	;;
-RustAnalysis)
-	sudo apt-get -q -y install rustup
-	rustup default stable
-	rustup component add clippy rustfmt
-
-	wget -q "$CARGO_MSRV_WHENCE" -O "cargo-msvc.tgz"
-	sudo mkdir -p "$CUSTOM_PATH"
-	sudo tar -xf "cargo-msvc.tgz" --strip-components=1 \
-		--directory "$CUSTOM_PATH" --wildcards "*/cargo-msrv"
-	sudo chmod a+x "$CUSTOM_PATH/cargo-msrv"
-	;;
 sparse)
 	sudo apt-get -q -y install libssl-dev libcurl4-openssl-dev \
 		libexpat-dev gettext zlib1g-dev sparse

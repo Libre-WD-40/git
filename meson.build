@@ -1722,20 +1722,9 @@ version_def_h = custom_target(
 )
 libgit_sources += version_def_h
 
-cargo = find_program('cargo', dirs: program_path, native: true, required: get_option('rust'))
-rust_option = get_option('rust').disable_auto_if(not cargo.found())
-if rust_option.allowed()
-  subdir('src')
-  libgit_c_args += '-DWITH_RUST'
-
-  if host_machine.system() == 'windows'
-    libgit_dependencies += compiler.find_library('userenv')
-  endif
-else
-  libgit_sources += [
+libgit_sources += [
     'varint.c',
-  ]
-endif
+]
 
 libgit = declare_dependency(
   link_with: static_library('git',
