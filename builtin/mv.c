@@ -613,7 +613,10 @@ remove_entry:
 					 */
 					char *dst_dup = xstrdup(dst);
 					string_list_append(&dirty_paths, dst);
-					safe_create_leading_directories(the_repository, dst_dup);
+					if (safe_create_leading_directories(the_repository, dst_dup)) {
+						free(dst_dup);
+						die(_("failed to create leading directories of '%s'"), dst);
+					}
 					FREE_AND_NULL(dst_dup);
 					rename(src, dst);
 				}
