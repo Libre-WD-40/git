@@ -51,6 +51,7 @@ int dummy_pthread_init(void *);
 #endif
 
 int online_cpus(void);
+void init_thread_utils(void);
 int init_recursive_mutex(pthread_mutex_t*);
 
 

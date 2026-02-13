@@ -1,6 +1,10 @@
 #include "git-compat-util.h"
 #include "thread-utils.h"
 
+#ifdef HAVE_NUMA_H
+#include <numa.h>
+#endif
+
 #if defined(hpux) || defined(__hpux) || defined(_hpux)
 #  include <sys/pstat.h>
 #endif
@@ -62,6 +66,14 @@ int online_cpus(void)
 #endif
 
 	return 1;
+#endif
+}
+
+void init_thread_utils(void)
+{
+#ifdef HAVE_NUMA_H
+	if (numa_available() != -1)
+		numa_set_localalloc();
 #endif
 }
 

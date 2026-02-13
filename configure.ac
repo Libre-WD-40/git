@@ -294,6 +294,20 @@ AS_HELP_STRING([],           [ARG can be also prefix for libpcre library and hea
         dnl it yet.
 	GIT_CONF_SUBST([LIBPCREDIR])
     fi)
+
+AC_ARG_WITH(numa,
+AS_HELP_STRING([--with-numa],[use libnuma for memory optimisations (default is NO)])
+AS_HELP_STRING([], [ARG can be also prefix for libnuma library and headers]),
+    if test "$withval" = "no"; then
+	USE_LIBNUMA=
+    elif test "$withval" = "yes"; then
+	USE_LIBNUMA=YesPlease
+    else
+	USE_LIBNUMA=YesPlease
+	LIBNUMADIR=$withval
+	AC_MSG_NOTICE([Setting LIBNUMADIR to $LIBNUMADIR])
+	GIT_CONF_SUBST([LIBNUMADIR])
+    fi)
 #
 # Define HAVE_ALLOCA_H if you have working alloca(3) defined in that header.
 AC_FUNC_ALLOCA
@@ -540,6 +554,25 @@ GIT_UNSTASH_FLAGS($LIBPCREDIR)
 GIT_CONF_SUBST([USE_LIBPCRE2])
 
 fi
+
+#
+if test -n "$USE_LIBNUMA"; then
+
+GIT_STASH_FLAGS($LIBNUMADIR)
+
+AC_CHECK_HEADER([numa.h],
+[AC_CHECK_LIB([numa], [numa_available],
+[HAVE_NUMA_H=YesPlease
+NUMA_LIBS=-lnuma],
+[USE_LIBNUMA=])],
+[USE_LIBNUMA=])
+
+GIT_UNSTASH_FLAGS($LIBNUMADIR)
+
+fi
+GIT_CONF_SUBST([USE_LIBNUMA])
+GIT_CONF_SUBST([HAVE_NUMA_H])
+GIT_CONF_SUBST([NUMA_LIBS])
 
 #
 # Define NO_CURL if you do not have libcurl installed.  git-http-pull and
