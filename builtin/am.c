@@ -2222,6 +2222,7 @@ static void am_abort(struct am_state *state)
 static int show_patch(struct am_state *state, enum resume_type resume_mode)
 {
 	struct strbuf sb = STRBUF_INIT;
+	struct strbuf msgnum_sb = STRBUF_INIT;
 	const char *patch_path;
 	int len;
 
@@ -2236,7 +2237,8 @@ static int show_patch(struct am_state *state, enum resume_type resume_mode)
 
 	switch (resume_mode) {
 	case RESUME_SHOW_PATCH_RAW:
-		patch_path = am_path(state, msgnum(state));
+		strbuf_addf(&msgnum_sb, "%0*d", state->prec, state->cur);
+		patch_path = am_path(state, msgnum_sb.buf);
 		break;
 	case RESUME_SHOW_PATCH_DIFF:
 		patch_path = am_path(state, "patch");
@@ -2252,6 +2254,7 @@ static int show_patch(struct am_state *state, enum resume_type resume_mode)
 	setup_pager(the_repository);
 	write_in_full(1, sb.buf, sb.len);
 	strbuf_release(&sb);
+	strbuf_release(&msgnum_sb);
 	return 0;
 }
 
