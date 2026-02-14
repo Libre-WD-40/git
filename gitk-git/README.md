@@ -25,8 +25,6 @@ gitk branch-name
 gitk v1.0..v2.0
 ```
 
-For more usage examples and options, see the [gitk manual](https://git-scm.com/docs/gitk).
-
 Building
 ========
 
@@ -67,27 +65,3 @@ meson install -C builddir
 
 Both build systems will handle setting the correct Tcl/Tk interpreter
 path and installing translation files.
-
-Contributing
-============
-
-Contributions are welcome! The preferred method for submitting patches
-is via email to the Git mailing list, as this allows for more thorough
-review and broader community feedback. However, GitHub pull requests
-are also accepted.
-
-All commits must be signed off (use `git commit --signoff`) and should
-have commit messages prefixed with `gitk:`.
-
-Email Patches
--------------
-
-Send patches to git@vger.kernel.org and CC j6t@kdbg.org. See the Git
-project's [patch submission guidelines](https://git-scm.com/docs/SubmittingPatches)
-for detailed instructions on creating and sending patches.
-
-License
-=======
-
-Gitk is distributed under the GNU General Public License, either
-version 2, or (at your option) any later version.
