@@ -664,31 +664,7 @@ void expand_ref_prefix(struct strvec *prefixes, const char *prefix)
 		strvec_pushf(prefixes, *p, len, prefix);
 }
 
-#ifndef WITH_BREAKING_CHANGES
-static const char default_branch_name_advice[] = N_(
-"Using '%s' as the name for the initial branch. This default branch name\n"
-"will change to \"main\" in Git 3.0. To configure the initial branch name\n"
-"to use in all of your new repositories, which will suppress this warning,\n"
-"call:\n"
-"\n"
-"\tgit config --global init.defaultBranch <name>\n"
-"\n"
-"Names commonly chosen instead of 'master' are 'main', 'trunk' and\n"
-"'development'. The just-created branch can be renamed via this command:\n"
-"\n"
-"\tgit branch -m <name>\n"
-);
-#else
-static const char default_branch_name_advice[] = N_(
-"Using '%s' as the name for the initial branch since Git 3.0.\n"
-"If you expected Git to create 'master', the just-created\n"
-"branch can be renamed via this command:\n"
-"\n"
-"\tgit branch -m master\n"
-);
-#endif /* WITH_BREAKING_CHANGES */
-
-char *repo_default_branch_name(struct repository *r, int quiet)
+char *repo_default_branch_name(struct repository *r, int quiet UNUSED)
 {
 	const char *config_key = "init.defaultbranch";
 	const char *config_display_key = "init.defaultBranch";
@@ -701,14 +677,7 @@ char *repo_default_branch_name(struct repository *r, int quiet)
 		die(_("could not retrieve `%s`"), config_display_key);
 
 	if (!ret) {
-#ifdef WITH_BREAKING_CHANGES
-		ret = xstrdup("main");
-#else
 		ret = xstrdup("master");
-#endif /* WITH_BREAKING_CHANGES */
-		if (!quiet)
-			advise_if_enabled(ADVICE_DEFAULT_BRANCH_NAME,
-					  _(default_branch_name_advice), ret);
 	}
 
 	full_ref = xstrfmt("refs/heads/%s", ret);
