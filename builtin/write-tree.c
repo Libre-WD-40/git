@@ -39,7 +39,7 @@ int cmd_write_tree(int argc,
 			.precision = sizeof(flags),
 			.help = N_("only useful for debugging"),
 			.flags = PARSE_OPT_HIDDEN | PARSE_OPT_NOARG,
-			.defval = WRITE_TREE_IGNORE_CACHE_TREE,
+			.defval = DEFVAL_INT(WRITE_TREE_IGNORE_CACHE_TREE),
 		},
 		OPT_END()
 	};

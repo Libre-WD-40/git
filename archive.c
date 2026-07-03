@@ -562,7 +562,7 @@ static void extra_file_info_clear(void *util, const char *str UNUSED)
 static int add_file_cb(const struct option *opt, const char *arg, int unset)
 {
 	struct archiver_args *args = opt->value;
-	const char **basep = (const char **)opt->defval;
+	const char **basep = (const char **)DEFVAL_TO_PTR(opt->defval);
 	const char *base = *basep;
 	char *path;
 	struct string_list_item *item;
@@ -657,7 +657,7 @@ static int parse_archive_args(int argc, const char **argv,
 			.argh = N_("file"),
 			.help = N_("add untracked file to archive"),
 			.callback = add_file_cb,
-			.defval = (intptr_t) &base,
+			.defval = DEFVAL_PTR(&base),
 		},
 		{
 			.type = OPTION_CALLBACK,
@@ -666,7 +666,7 @@ static int parse_archive_args(int argc, const char **argv,
 			.argh = N_("path:content"),
 			.help = N_("add untracked file to archive"),
 			.callback = add_file_cb,
-			.defval = (intptr_t) &base,
+			.defval = DEFVAL_PTR(&base),
 		},
 		OPT_STRING('o', "output", &output, N_("file"),
 			N_("write the archive to this file")),

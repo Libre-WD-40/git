@@ -124,7 +124,7 @@ struct ref_format {
 	.help = (h), \
 	.flags = PARSE_OPT_LASTARG_DEFAULT | PARSE_OPT_NONEG, \
 	.callback = parse_opt_merge_filter, \
-	.defval = (intptr_t) "HEAD", \
+	.defval = DEFVAL_PTR("HEAD"), \
 }
 #define OPT_MERGED(f, h) _OPT_MERGED_NO_MERGED("merged", f, h)
 #define OPT_NO_MERGED(f, h) _OPT_MERGED_NO_MERGED("no-merged", f, h)

@@ -352,7 +352,16 @@ __extension__								\
    __o1->next_free += sizeof (int);					\
    (void) 0; })
 
-# define obstack_blank(OBSTACK,length)					\
+# ifdef __FILC__
+#  define obstack_blank(OBSTACK,length)					\
+__extension__								\
+({ struct obstack *__o = (OBSTACK);					\
+   int __len = (length);						\
+   _obstack_newchunk (__o, __len);					\
+   obstack_blank_fast (__o, __len);					\
+   (void) 0; })
+# else
+#  define obstack_blank(OBSTACK,length)					\
 __extension__								\
 ({ struct obstack *__o = (OBSTACK);					\
    int __len = (length);						\
@@ -360,6 +369,7 @@ __extension__								\
      _obstack_newchunk (__o, __len);					\
    obstack_blank_fast (__o, __len);					\
    (void) 0; })
+# endif
 
 # define obstack_alloc(OBSTACK,length)					\
 __extension__								\
@@ -465,11 +475,18 @@ __extension__								\
 # define obstack_int_grow_fast(h,aint)					\
   (((int *) ((h)->next_free += sizeof (int)))[-1] = (aint))
 
-# define obstack_blank(h,length)					\
+# ifdef __FILC__
+#  define obstack_blank(h,length)					\
+( (h)->temp.tempint = (length),						\
+  _obstack_newchunk ((h), (h)->temp.tempint),				\
+  obstack_blank_fast (h, (h)->temp.tempint))
+# else
+#  define obstack_blank(h,length)					\
 ( (h)->temp.tempint = (length),						\
   (((h)->chunk_limit - (h)->next_free < (h)->temp.tempint)		\
    ? (_obstack_newchunk ((h), (h)->temp.tempint), 0) : 0),		\
   obstack_blank_fast (h, (h)->temp.tempint))
+# endif
 
 # define obstack_alloc(h,length)					\
  (obstack_blank ((h), (length)), obstack_finish ((h)))

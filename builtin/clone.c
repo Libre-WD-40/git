@@ -89,7 +89,7 @@ static int recurse_submodules_cb(const struct option *opt,
 		string_list_append((struct string_list *)opt->value, arg);
 	else
 		string_list_append((struct string_list *)opt->value,
-				   (const char *)opt->defval);
+				   (const char *)DEFVAL_TO_PTR(opt->defval));
 
 	return 0;
 }
@@ -946,7 +946,7 @@ int cmd_clone(int argc,
 			.help = N_("initialize submodules in the clone"),
 			.flags = PARSE_OPT_OPTARG,
 			.callback = recurse_submodules_cb,
-			.defval = (intptr_t)".",
+			.defval = DEFVAL_PTR("."),
 		},
 		OPT_ALIAS(0, "recursive", "recurse-submodules"),
 		OPT_INTEGER('j', "jobs", &max_jobs,

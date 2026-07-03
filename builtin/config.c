@@ -145,7 +145,7 @@ struct config_display_options {
 	.help = (h), \
 	.flags = PARSE_OPT_NOARG | PARSE_OPT_NONEG, \
 	.callback = option_parse_type, \
-	.defval = (i), \
+	.defval = DEFVAL_INT(i), \
 }
 
 static int option_parse_type(const struct option *opt, const char *arg,
@@ -162,7 +162,7 @@ static int option_parse_type(const struct option *opt, const char *arg,
 	 * To support '--<type>' style flags, begin with new_type equal to
 	 * opt->defval.
 	 */
-	new_type = opt->defval;
+	new_type = DEFVAL_TO_INT(opt->defval);
 	if (!new_type) {
 		if (!strcmp(arg, "bool"))
 			new_type = TYPE_BOOL;
