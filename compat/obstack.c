@@ -142,6 +142,7 @@ _obstack_begin (struct obstack *h,
 
   if (alignment == 0)
     alignment = DEFAULT_ALIGNMENT;
+#ifndef __FILC__
   if (size == 0)
     /* Default size is what GNU malloc can fit in a 4096-byte block.  */
     {
@@ -158,11 +159,18 @@ _obstack_begin (struct obstack *h,
 		   & ~(DEFAULT_ROUNDING - 1));
       size = 4096 - extra;
     }
+#endif
 
   h->chunkfun.plain = chunkfun;
   h->freefun.plain = freefun;
+#ifdef __FILC__
+  h->alignment_mask = alignment - 1;
+  size = sizeof (struct _obstack_chunk) + h->alignment_mask;
+  h->chunk_size = size;
+#else
   h->chunk_size = size;
   h->alignment_mask = alignment - 1;
+#endif
   h->use_extra_arg = 0;
 
   chunk = h->chunk = CALL_CHUNKFUN (h, h -> chunk_size);
@@ -189,6 +197,7 @@ _obstack_begin_1 (struct obstack *h, int size, int alignment,
 
   if (alignment == 0)
     alignment = DEFAULT_ALIGNMENT;
+#ifndef __FILC__
   if (size == 0)
     /* Default size is what GNU malloc can fit in a 4096-byte block.  */
     {
@@ -205,12 +214,19 @@ _obstack_begin_1 (struct obstack *h, int size, int alignment,
 		   & ~(DEFAULT_ROUNDING - 1));
       size = 4096 - extra;
     }
+#endif
 
   h->chunkfun.extra = (struct _obstack_chunk * (*)(void *,long)) chunkfun;
   h->freefun.extra = (void (*) (void *, struct _obstack_chunk *)) freefun;
 
+#ifdef __FILC__
+  h->alignment_mask = alignment - 1;
+  size = sizeof (struct _obstack_chunk) + h->alignment_mask;
+  h->chunk_size = size;
+#else
   h->chunk_size = size;
   h->alignment_mask = alignment - 1;
+#endif
   h->extra_arg = arg;
   h->use_extra_arg = 1;
 
@@ -246,9 +262,17 @@ _obstack_newchunk (struct obstack *h, int length)
   char *object_base;
 
   /* Compute size for new chunk.  */
+#ifdef __FILC__
+  if (obj_size)
+    new_size = 2 * (obj_size + length);
+  else
+    new_size = length;
+  new_size += sizeof (struct _obstack_chunk) + h->alignment_mask;
+#else
   new_size = (obj_size + length) + (obj_size >> 3) + h->alignment_mask + 100;
   if (new_size < h->chunk_size)
     new_size = h->chunk_size;
+#endif
 
   /* Allocate and initialize the new chunk.  */
   new_chunk = CALL_CHUNKFUN (h, new_size);

@@ -2294,7 +2294,7 @@ static int parse_opt_show_current_patch(const struct option *opt, const char *ar
 	BUG_ON_OPT_NEG(unset);
 
 	if (!arg)
-		*opt_value = opt->defval;
+		*opt_value = DEFVAL_TO_INT(opt->defval);
 	else if (!strcmp(arg, "raw"))
 		*opt_value = RESUME_SHOW_PATCH_RAW;
 	else if (!strcmp(arg, "diff"))
@@ -2413,7 +2413,7 @@ int cmd_am(int argc,
 			.help = N_("show the patch being applied"),
 			.flags = PARSE_OPT_CMDMODE | PARSE_OPT_OPTARG | PARSE_OPT_NONEG | PARSE_OPT_LITERAL_ARGHELP,
 			.callback = parse_opt_show_current_patch,
-			.defval = RESUME_SHOW_PATCH_RAW,
+			.defval = DEFVAL_INT(RESUME_SHOW_PATCH_RAW),
 		},
 		OPT_CMDMODE(0, "retry", &resume_mode,
 			N_("try to apply current patch again"),
@@ -2435,7 +2435,7 @@ int cmd_am(int argc,
 			.argh = N_("key-id"),
 			.help = N_("GPG-sign commits"),
 			.flags = PARSE_OPT_OPTARG,
-			.defval = (intptr_t) "",
+			.defval = DEFVAL_PTR(""),
 		},
 		OPT_CALLBACK_F(0, "empty", &state.empty_type, "(stop|drop|keep)",
 		  N_("how to handle empty patches"),

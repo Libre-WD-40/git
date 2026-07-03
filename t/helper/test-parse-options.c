@@ -134,7 +134,7 @@ int cmd__parse_options(int argc, const char **argv)
 			.precision = sizeof(boolean),
 			.help = "be brave",
 			.flags = PARSE_OPT_NOARG | PARSE_OPT_NONEG,
-			.defval = 1,
+			.defval = DEFVAL_INT(1),
 		},
 		OPT_COUNTUP('b', "boolean", &boolean, "increment by one"),
 		OPT_BIT('4', "or4", &boolean,

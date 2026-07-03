@@ -120,7 +120,7 @@ int cmd_commit_tree(int argc,
 			.argh = N_("key-id"),
 			.help = N_("GPG sign commit"),
 			.flags = PARSE_OPT_OPTARG,
-			.defval = (intptr_t) "",
+			.defval = DEFVAL_PTR(""),
 		},
 		OPT_END()
 	};
